@@ -1,0 +1,20 @@
+name: CI using maven and Jenkins 
+on: 
+ push:  # run the workflow on every commit
+ workflow_dispatch: # run the workflow maually
+jobs:
+  buildJob:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout code on the ubuntu server
+        uses: actions/checkout@v4
+      - name: Install Java and Maven on the ubuntu server 
+        uses: actions/setup-java@v4 
+        with:
+         distribution: 'temurin'
+         java-version: '11'
+         cache: 'maven'
+      - name: Test the code 
+        run: mvn test
+      - name: Build the code 
+        run: mvn package
