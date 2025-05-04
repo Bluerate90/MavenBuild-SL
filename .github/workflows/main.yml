@@ -1,20 +1,39 @@
-name: CI using maven and Jenkins 
-on: 
+name: CI using maven and Jenkins
+on:
  push:  # run the workflow on every commit
  workflow_dispatch: # run the workflow maually
 jobs:
   buildJob:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - name: Checkout code on the ubuntu server
         uses: actions/checkout@v4
-      - name: Install Java and Maven on the ubuntu server 
-        uses: actions/setup-java@v4 
+      - name: Install Java and Maven on the ubuntu server
+        uses: actions/setup-java@v4
         with:
          distribution: 'temurin'
          java-version: '11'
          cache: 'maven'
-      - name: Test the code 
+      - name: Test the code
         run: mvn test
-      - name: Build the code 
+      - name: Build the code
         run: mvn package
+      - name: Get the artifact and upload on github repo
+        uses: actions/upload-artifact@v4
+        with:
+         name: java-example-artifact
+         path: /home/runner/work/MavenBuild-SL/MavenBuild-SL/target/java-example.war
+      - name: Connect to LAB and run curl command to trigger a Job
+        uses: cross-the-world/ssh-scp-ssh-pipelines@latest
+        with:
+          host: '43.204.22.27' # change to your lab server public IP
+          user: 'labuser'
+          pass: 'Nuvelabs123$'
+          port: 22
+          connect_timeout: 10s
+          first_ssh: |
+            sudo curl -l -u admin:Root123$ http://localhost:8080/job/build-job/build?token=token1
+          scp: |
+           './target/*.war' => /tmp
+          last_ssh:
+            ls -al /tmp
