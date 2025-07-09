@@ -17,8 +17,15 @@ pipeline{
         // each task/job represents a stage
         
         stage('Clone the repo'){
-            steps{
-              git 'https://github.com/Bluerate90/MavenBuild-SL.git'  
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Bluerate90/MavenBuild-SL.git',
+                        credentialsId: 'github-token'
+                    ]]
+                ])
             }
         }
 
